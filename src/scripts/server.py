@@ -11,12 +11,7 @@ from src.dependencies.middlewares.logmiddleware import LoggingMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
 
-@asynccontextmanager
-async def redisconn(app: FastAPI):
-    redis = await aioredis.from_url("redis://localhost:6379")
-    app.state.redis = redis
-    yield
-    await redis.close()
+
 
 app = FastAPI(
     title="FHA Mortgage Bank API documentation",
@@ -36,7 +31,6 @@ app = FastAPI(
             "description": "API for FHA Mortgage Bank"
         }
     ],
-    lifespan=redisconn,
     default_response_class=responses.ORJSONResponse,
 )
 
@@ -55,7 +49,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(LoggingMiddleware)
+# app.add_middleware(LoggingMiddleware)
 
 
 list(map(lambda r: app.include_router(r), routes))

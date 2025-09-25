@@ -17,7 +17,7 @@ def sign(params: dict, secret: str) -> str:
     return hashlib.sha1(to_sign.encode("utf-8")).hexdigest()
 
 
-class ObjectStService:
+class CloudinaryService:
     DOMAIN = "https://api.cloudinary.com"
     PATH = f"/v1_1/{CLOUDINARY_CLOUD_NAME}"
 

@@ -17,6 +17,7 @@ class BaseModel(Model):
         ordering = ["-created_at", "-updated_at"]
 
 class MetaData(Model):
+    device_id = fields.CharField(100, unique=True, null=True)
     ip_address = fields.CharField(45, null=True)
     latitude = fields.FloatField(null=True)
     longitude = fields.FloatField(null=True)
