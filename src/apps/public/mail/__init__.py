@@ -1,0 +1,1 @@
+from src.apps.public.mail.models import Email

@@ -1,0 +1,1 @@
+from src.apps.public.subscribers.models import Subscriber
