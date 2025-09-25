@@ -8,21 +8,18 @@ from email.utils import formataddr
 from typing import List, Optional
 from src.config.env import EMAIL_USER, EMAIL_HOST, EMAIL_PASSWORD, EMAIL_PORT
 
-# Logger setup
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-# Production TLS context (verifies cert)
-tls_context = ssl.create_default_context()
 
 class EmailService:
     def __init__(self):
         self.host = EMAIL_HOST
-        self.port = EMAIL_PORT
+        self.port = int(EMAIL_PORT)
         self.username = EMAIL_USER
         self.password = EMAIL_PASSWORD
-        self.timeout = 10
+        self.timeout = 20
         self.semaphore = asyncio.Semaphore(10)
+        self.tls_context = ssl.create_default_context()
 
     async def send_email(
         self,
@@ -56,25 +53,39 @@ class EmailService:
 
         async with self.semaphore:
             try:
-                async with aiosmtplib.SMTP(
-                    hostname="st201.sternhost.net",
-                    port=self.port,
-                    use_tls=True,
-                    start_tls=False,
-                    timeout=30,
-                    tls_context=ssl.create_default_context() 
-                ) as server:
-                    await server.login(self.username, self.password)
-                    await server.sendmail(
-                        from_email or self.username,
-                        recipients,
-                        msg.as_string()
+                if self.port == 465:  # Implicit SSL
+                    server = aiosmtplib.SMTP(
+                        hostname=self.host,
+                        port=self.port,
+                        use_tls=True,
+                        timeout=self.timeout,
+                        tls_context=self.tls_context
                     )
-                logger.info(f"✅ Email sent to {recipients}")
+                else:  # Typically port 587 with STARTTLS
+                    server = aiosmtplib.SMTP(
+                        hostname=self.host,
+                        port=self.port,
+                        use_tls=False,
+                        start_tls=True,
+                        timeout=self.timeout,
+                        tls_context=self.tls_context
+                    )
+
+                await server.connect()
+                await server.login(self.username, self.password)
+                await server.sendmail(
+                    from_email or self.username,
+                    recipients,
+                    msg.as_string()
+                )
+                await server.quit()
+
+                print(f"✅ Email sent to {recipients}")
                 return True
+
             except aiosmtplib.SMTPException as e:
-                logger.error(f"SMTP error sending email: {str(e)}")
+                logger.error(f"SMTP error sending email: {e}")
                 return False
             except Exception as e:
-                logger.error(f"Unexpected error sending email: {str(e)}")
+                logger.error(f"Unexpected error sending email: {e}")
                 return False
