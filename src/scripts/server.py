@@ -7,10 +7,21 @@ from src.core.database import TORTOISE_ORM
 from src.core.routes import routes
 import redis.asyncio as aioredis
 from contextlib import asynccontextmanager
+from src.logs.logger import JSONFormatter
 from src.dependencies.middlewares.logmiddleware import LoggingMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+import logging
 
+logging.getLogger("tortoise").setLevel(logging.CRITICAL)
 
+root_logger = logging.getLogger()
+for h in root_logger.handlers[:]:
+    root_logger.removeHandler(h)
+
+file_handler = logging.FileHandler("logs/app.log", encoding="utf-8")
+file_handler.setFormatter(JSONFormatter())
+root_logger.addHandler(file_handler)
+root_logger.setLevel(logging.INFO)
 
 
 app = FastAPI(
@@ -49,7 +60,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# app.add_middleware(LoggingMiddleware)
+app.add_middleware(LoggingMiddleware)
 
 
 list(map(lambda r: app.include_router(r), routes))

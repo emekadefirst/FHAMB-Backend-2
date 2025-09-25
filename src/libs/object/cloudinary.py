@@ -22,7 +22,7 @@ class CloudinaryService:
     PATH = f"/v1_1/{CLOUDINARY_CLOUD_NAME}"
 
     @classmethod
-    async def upload(cls, file: Union[str, UploadFile, IO[bytes]], resource_type: str = "auto") -> str:
+    async def upload(cls, file: UploadFile, resource_type: str = "auto") -> str:
         timestamp = int(time.time())
         params = {"timestamp": timestamp}
         signature = sign(params, CLOUDINARY_API_SECRET)
@@ -33,33 +33,24 @@ class CloudinaryService:
             "signature": signature,
         }
 
-        # Case 1: Local file path
-        if isinstance(file, str):
-            filename = file.split("/")[-1]
-            mimetype = mimetypes.guess_type(filename)[0] or "application/octet-stream"
-            with open(file, "rb") as f:
-                file_content = (filename, f.read(), mimetype)
-
-        # Case 2: FastAPI UploadFile
-        elif hasattr(file, "read"):
-            filename = getattr(file, "filename", "upload.bin")
-            mimetype = mimetypes.guess_type(filename)[0] or "application/octet-stream"
-            content = await file.read()   # 🔑 FIX: await the coroutine
-            file_content = (filename, content, mimetype)
-
-        else:
-            raise TypeError("Unsupported file type")
+        filename = file.filename or f"upload-{uuid.uuid4().hex}.bin"
+        mimetype = mimetypes.guess_type(filename)[0] or "application/octet-stream"
 
         url = f"{cls.DOMAIN}{cls.PATH}/{resource_type}/upload"
 
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.post(url, data=fields, files={"file": file_content})
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            resp = await client.post(
+                url,
+                data=fields,
+                files={  
+                    "file": (filename, file.file, mimetype)
+                },
+            )
 
         if resp.status_code != 200:
             raise RuntimeError(
                 f"Cloudinary upload failed: {resp.status_code} {resp.text}"
             )
+
         result = orjson.loads(resp.content)
-        if "secure_url" not in result:
-            raise RuntimeError(f"Upload error: {result}")
         return result["secure_url"]

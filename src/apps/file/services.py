@@ -141,13 +141,15 @@ class CloudinaryFileService:
     model = File
 
     @classmethod
-    async def upload(cls, file: Optional[UploadFile], user_id: Optional[str] = None) -> List[File]:
+    async def upload(cls, file: Optional[UploadFile], user_id: Optional[str] = None) -> File:
         if not file:
             raise cls.error.get(400, "No files provided")
+
         url = await cls.bucket.upload(file)
         filename, ext = os.path.splitext(file.filename)
         ext = ext.replace(".", "").lower()
         mime_type = mimetypes.guess_type(file.filename)[0]
+
         file_data = {
             "name": filename,
             "slug": filename.replace(" ", "_").lower(),
@@ -158,11 +160,14 @@ class CloudinaryFileService:
             "user_id": user_id,
             "type": cls._get_file_type(ext),
         }
-        saved_file = await cls.model.save(**file_data)
-        return saved_file
 
-    @staticmethod
-    def _get_file_type(ext: str) -> str:
+        file_obj = cls.model(**file_data)
+        await file_obj.save()
+        return file_obj
+
+
+    @classmethod
+    def _get_file_type(cls, ext: str) -> str:
         from src.enums.base import ImageExtension, VideoExtension, DocumentExtension, AudioExtension, FileType
 
         if ext in ImageExtension._value2member_map_:

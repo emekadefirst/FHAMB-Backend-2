@@ -2,7 +2,7 @@ import asyncio
 from tortoise import Tortoise
 from src.core.database import TORTOISE_ORM
 from src.core.models import User, Permission, PermissionGroup
-from src.enums.base import Action, AppModule
+from src.enums.base import Action, Resource
 
 
 
@@ -36,12 +36,12 @@ async def seed_admin_user():
 
 async def seed_permissions():
     permissions_data = [
-        (Action.CREATE, AppModule.USER),
-        (Action.READ, AppModule.USER),
-        (Action.UPDATE, AppModule.USER),
-        (Action.DELETE, AppModule.USER),
-        (Action.CREATE, AppModule.PERMISSION),
-        (Action.READ, AppModule.PERMISSION),
+        (Action.CREATE, Resource.USER),
+        (Action.READ, Resource.USER),
+        (Action.UPDATE, Resource.USER),
+        (Action.DELETE, Resource.USER),
+        (Action.CREATE, Resource.PERMISSION),
+        (Action.READ, Resource.PERMISSION),
     ]
 
     permissions = []
