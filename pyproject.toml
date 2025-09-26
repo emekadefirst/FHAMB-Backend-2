@@ -28,6 +28,7 @@ dependencies = [
 
 [project.scripts]
 dev = "src.scripts.server:run_server"
+prod = "src.scripts.server:run_prod"
 makemigrations = "src.scripts.aerich:makemigrations"
 migrate = "src.scripts.aerich:migrate"
 seed = "src.scripts.seed:run"

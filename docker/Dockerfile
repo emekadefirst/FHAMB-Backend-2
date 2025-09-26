@@ -24,4 +24,4 @@ ENTRYPOINT []
 
 EXPOSE 8080
 
-CMD ["uvicorn", "src.scripts.server:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uv", "run", "prod"]

@@ -17,7 +17,7 @@ services:
       sh -c "
       aerich init -t src.core.database.TORTOISE_ORM || true &&
       aerich init-db || true &&
-      uv run start --host 0.0.0.0 --port 8080
+      uv run prod
       "
 
   db:
