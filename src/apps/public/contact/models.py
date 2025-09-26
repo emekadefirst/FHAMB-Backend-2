@@ -4,6 +4,7 @@ from tortoise.contrib.postgres.fields import ArrayField
 
 
 class Social(BaseModel):
+    public = fields.BooleanField(default=False)
     name = fields.CharField(255)
     url = fields.CharField(550)
 

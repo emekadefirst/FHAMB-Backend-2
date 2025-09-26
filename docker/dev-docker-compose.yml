@@ -3,5 +3,28 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    expose:
-      - "8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: fhambe
+    command: >
+      sh -c "
+      aerich init -t src.core.database.TORTOISE_ORM || true &&
+      aerich init-db || true &&
+      uv run start --host 0.0.0.0 --port 8080
+      "
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fhambe
+    ports:
+      - "5432:5432"
