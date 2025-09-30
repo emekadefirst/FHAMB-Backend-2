@@ -7,8 +7,7 @@ class SocialSchema(BaseModel):
     name: str = Field(..., max_length=255)
     url: str = Field(..., max_length=550)
 
-    class Config:
-        orm_mode = True
+
 
 
 class BranchSchema(BaseModel):
@@ -17,8 +16,7 @@ class BranchSchema(BaseModel):
     phone_numbers: Optional[List[str]] = []
     emails: Optional[List[str]] = []
 
-    class Config:
-        orm_mode = True
+
 
 
 class ContactUsSchema(BaseModel):
@@ -29,8 +27,7 @@ class ContactUsSchema(BaseModel):
     phone_number: Optional[str] = Field(None, max_length=20)
     contact_address: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+
 
 
 class TeamSchema(BaseModel):
@@ -41,5 +38,4 @@ class TeamSchema(BaseModel):
     rank: Optional[int] = None
     socials: Optional[List[SocialSchema]] = []
 
-    class Config:
-        orm_mode = True
+
