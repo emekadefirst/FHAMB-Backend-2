@@ -46,7 +46,8 @@ find . -type d -name "__pycache__" -exec rm -rf {} +
 ### Build & Run (Dev)
 
 ```bash
-docker compose -f dev-docker-compose.yml up -d --build
+docker compose --env-file .env -f docker/dev-docker-compose.yml up -d --build
+
 ```
 
 ### Build & Run (Prod)

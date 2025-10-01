@@ -1,5 +1,6 @@
 services:
   app:
+    image: fhambe:latest
     build:
       context: ..
       dockerfile: docker/Dockerfile
@@ -7,12 +8,8 @@ services:
       - "8080:8080"
     depends_on:
       - db
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: fhambe
+    env_file:        # 👈 loads everything from .env
+      - ../.env      # adjust relative path (depends on where your compose file lives)
     command: >
       sh -c "
       aerich init -t src.core.database.TORTOISE_ORM || true &&
@@ -22,9 +19,12 @@ services:
 
   db:
     image: postgres:15
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: fhambe
     ports:
       - "5432:5432"
+    env_file:        # 👈 loads postgres vars from .env
+      - ../.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
