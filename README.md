@@ -31,39 +31,10 @@ uv run makemigrations
 uv run migrate
 ```
 
----
-
-### 2️⃣ Clean Python Cache (optional)
-
-```bash
-find . -type d -name "__pycache__" -exec rm -rf {} +
-```
-
----
-
-## 🐳 Running with Docker
-
-### Build & Run (Dev)
-
-```bash
-docker compose --env-file .env -f docker/dev-docker-compose.yml up -d --build
-
-```
-
-### Build & Run (Prod)
-
-```bash
-# Build image
-docker build -t fhamb-be .
-
-# Run container
-docker run -p 80:80 fhamb-be
-```
-
 ### Logs
 
 ```bash
-docker logs -f fhamb-be
+docker logs -f id
 ```
 
 ### Stop containers
@@ -71,11 +42,9 @@ docker logs -f fhamb-be
 ```bash
 docker compose down
 
-# or for dev only
-docker compose -f dev-docker-compose.yml down
 ```
 
----
+
 
 ## 🌐 Accessing the App
 
@@ -83,7 +52,6 @@ Once running, open in your browser:
 
 👉 [http://localhost:8000](http://localhost:8000)
 
----
 
 ## 🔑 SSH Keys (for deploys)
 
@@ -98,9 +66,8 @@ ssh-keygen -t ed25519 -C "deploy-key" -f ~/.ssh/deploy-key -N ""
 ## ⚡ Alternative Docker Commands with `.env`
 
 ```bash
-docker compose --env-file .env -f docker/prod-docker-compose.yml up -d --build # prod
 
-docker compose --env-file .env -f docker/dev-docker-compose.yml up -d --build
+docker compose --env-file .env -f docker/docker-compose.yml up -d --build
 ```
 
 ---
