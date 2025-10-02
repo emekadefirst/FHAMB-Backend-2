@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   app:
     build:
@@ -5,7 +7,7 @@ services:
       dockerfile: docker/Dockerfile
     container_name: fhamb_app
     expose:
-      - "8080"  # only inside network, nginx will proxy
+      - "8080"  # internal Docker network
     env_file:
       - ../.env  
     depends_on:
@@ -37,8 +39,8 @@ services:
     image: nginx:latest
     container_name: fhamb_nginx
     ports:
-      - "80:80"
-      - "443:443"
+      - "8081:80"    # host port 8081 → container port 80
+      - "8443:443"   # host port 8443 → container port 443
     volumes:
       - ../nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
