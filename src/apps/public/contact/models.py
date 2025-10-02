@@ -22,10 +22,10 @@ class Branch(BaseModel):
 
 
 class ContactUs(BaseModel):
-    sender_email = fields.CharField(max_length=255)
-    sender_name = fields.CharField(max_length=255)
-    body = fields.TextField()
-    inquiry_type = fields.CharField(max_length=255, null=True)
+    sender_email = fields.CharField(max_length=55)
+    sender_name = fields.CharField(max_length=55)
+    body = fields.CharField(max_length=200)
+    inquiry_type = fields.CharField(max_length=150, null=True)
     phone_number = fields.CharField(max_length=20, null=True)
     contact_address = fields.TextField(null=True)
 

@@ -1,6 +1,7 @@
 from fastapi import Request, BackgroundTasks, Response
 from src.utilities.base_service import BaseObjectService
 from src.apps.auth.user.models import User
+from src.apps.public.subscribers import Subscriber
 from src.error.base import ErrorHandler
 from src.apps.auth.user.schemas import UserCreateDto, UserLogin
 from src.libs.smtp.mailer import EmailService
@@ -8,6 +9,9 @@ from src.utilities.crypto import JWTService
 from src.utilities.meta import get_ipaddr
 from tortoise import timezone
 from src.utilities.hash import verify_password
+from src.apps.file.models import File
+from tortoise.expressions import Q
+from typing import Optional
 
 
 class UserService:
@@ -16,6 +20,7 @@ class UserService:
     error = ErrorHandler(User)
     email = EmailService()
     jwt = JWTService()
+    file = BaseObjectService(File)
 
     task = BackgroundTasks
 
@@ -29,8 +34,12 @@ class UserService:
             if existing_user.phone_number == dto.phone_number:
                 raise cls.error.get(409, "Phone number already exist. Try another one")
         user = await cls.model.create(**dict(dto))
+        if dto.profile_picture_id:
+            image = await cls.file.get_object_or_404(id=dto.profile_picture_id)
+            user.profile_picture = image
         user.ip_address = ip_addr
         await user.save()
+        await Subscriber.create(email=dto.email)
         token = cls.jwt.generate_token(str(user.id))
         response.set_cookie(
             key="access_token",
@@ -93,8 +102,30 @@ class UserService:
         )  
 
     @classmethod
-    async def all(cls):
-        users = await cls.model.all().prefetch_related("permission_groups")
+    async def all(
+        cls,
+        is_staff: Optional[bool] = None,
+        is_admin: Optional[bool] = None,
+        is_verified: Optional[bool] = None,
+        limit: int = 10,
+        offset: int = 0
+    ):
+
+        query = cls.model.all().prefetch_related("permission_groups").select_related("profile_picture")
+
+        if is_staff is not None:
+            query = query.filter(is_staff=is_staff)
+        if is_admin is not None:
+            query = query.filter(is_superuser=is_admin)
+        if is_verified is not None:
+            query = query.filter(is_verified=is_verified)
+
+        # Now run count() on the QuerySet
+        total_count = await query.count()
+
+        # Fetch paginated users
+        users = await query.offset(offset).limit(limit)
+
         results = []
         for user in users:
             results.append({
@@ -109,20 +140,26 @@ class UserService:
                 "is_verified": user.is_verified,
                 "is_superuser": user.is_superuser,
                 "is_staff": user.is_staff,
-                "profile_picture": user.profile_picture,
-                "is_deleted": user.is_deleted,
+                "profile_picture": user.profile_picture.url if user.profile_picture else None,
                 "last_login": user.last_login.isoformat() if user.last_login else None,
                 "has_agreed_to_terms": user.has_agreed_to_terms,
                 "latitude": user.latitude,
                 "longitude": user.longitude,
                 "device_id": user.device_id,
                 "ip_address": user.ip_address,
-                "permission_groups": user.permission_groups if user.permission_groups else None if user.permission_groups else None,
+                "permission_groups": [pg.name for pg in user.permission_groups] if user.permission_groups else None,
                 "created_at": user.created_at.isoformat() if user.created_at else None,
                 "updated_at": user.updated_at.isoformat() if user.updated_at else None,
             })
-        return results
-    
+
+        return {
+            "count": total_count,
+            "limit": limit,
+            "offset": offset,
+            "results": results
+        }
+
+
     @classmethod
     async def get(cls, user_id: str):
         user = await cls.model.get_or_none(id=user_id).prefetch_related("role")

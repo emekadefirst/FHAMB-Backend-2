@@ -21,3 +21,6 @@ class MetaData(Model):
     ip_address = fields.CharField(45, null=True)
     latitude = fields.FloatField(null=True)
     longitude = fields.FloatField(null=True)
+
+
+

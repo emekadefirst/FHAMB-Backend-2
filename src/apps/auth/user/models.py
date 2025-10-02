@@ -15,7 +15,7 @@ class User(BaseModel, MetaData):
     is_verified = fields.BooleanField(default=False)
     is_superuser = fields.BooleanField(default=False)
     is_staff = fields.BooleanField(default=False)
-    profile_picture = fields.CharField(max_length=500, null=True)
+    profile_picture = fields.ForeignKeyField("models.File", related_name="user_profile", null=True)
     last_login = fields.DatetimeField(null=True)
     has_agreed_to_terms = fields.BooleanField(default=False)
     permission_groups = fields.ManyToManyField(

@@ -10,6 +10,7 @@ class UserCreateDto(BaseModel):
     last_name: Optional[str] = Field(max_length=55, description="User's last name") 
     other_name: Optional[str] = Field(max_length=55, description="User's other name")
     contact_address: Optional[str] = None
+    profile_picture_id: Optional[str] = None
     has_agreed_to_terms: bool
     phone_number: Optional[str] = Field(
         default=None,
@@ -34,6 +35,7 @@ class UserObjectDto(BaseModel):
     is_staff: bool
     is_verified: bool
     is_superuser: bool
+    profile_picture: str
     latitude: str 
     longitude: str
     last_login: datetime
