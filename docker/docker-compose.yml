@@ -9,7 +9,7 @@ services:
     expose:
       - "8080"  # only inside network, nginx will proxy
     env_file:
-      - .env
+      - ../.env  
     depends_on:
       - db
 
@@ -19,7 +19,7 @@ services:
     ports:
       - "5432:5432"
     env_file:
-      - ../.env
+      - ../.env   
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
