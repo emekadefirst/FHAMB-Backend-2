@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
 from src.core.database import TORTOISE_ORM
 from src.core.routes import routes
-import redis.asyncio as aioredis
+
 from contextlib import asynccontextmanager
 from src.logs.logger import JSONFormatter
 from src.dependencies.middlewares.logmiddleware import LoggingMiddleware
