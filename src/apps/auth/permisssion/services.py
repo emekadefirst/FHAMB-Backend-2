@@ -1,7 +1,7 @@
-from src.apps.auth.permssion import Permission, PermissionGroup
+from src.apps.auth.permisssion import Permission, PermissionGroup
 from src.error.base import ErrorHandler
 from src.utilities.base_service import BaseObjectService
-from src.apps.auth.permssion.schemas import PermissionSchema, PermissionGroupSchema
+from src.apps.auth.permisssion.schemas import PermissionSchema, PermissionGroupSchema
 
 
 class PermissionModelService:

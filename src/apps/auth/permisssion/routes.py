@@ -1,10 +1,10 @@
 from fastapi import Request, Depends
 from src.utilities.route_builder import build_router
-from src.apps.auth.permssion.services import (
+from src.apps.auth.permisssion.services import (
     PermissionModelService,
     PermissionGroupModelService,
 )
-from src.apps.auth.permssion.schemas import PermissionSchema, PermissionGroupSchema
+from src.apps.auth.permisssion.schemas import PermissionSchema, PermissionGroupSchema
 from src.apps.auth.user.services import UserService
 from src.apps.auth.user import User
 

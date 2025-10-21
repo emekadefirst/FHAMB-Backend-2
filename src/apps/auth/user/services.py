@@ -1,9 +1,10 @@
 from fastapi import Request, BackgroundTasks, Response
 from src.utilities.base_service import BaseObjectService
 from src.apps.auth.user.models import User
+from src.apps.auth.permisssion.models import PermissionGroup
 from src.apps.public.subscribers import Subscriber
 from src.error.base import ErrorHandler
-from src.apps.auth.user.schemas import UserCreateDto, UserLogin
+from src.apps.auth.user.schemas import UserCreateDto, UserLogin, UpdateUserSchema
 from src.libs.smtp.mailer import EmailService
 from src.utilities.crypto import JWTService
 from src.utilities.meta import get_ipaddr
@@ -21,6 +22,7 @@ class UserService:
     email = EmailService()
     jwt = JWTService()
     file = BaseObjectService(File)
+    permission_groups = BaseObjectService(PermissionGroup)
 
     task = BackgroundTasks
 
@@ -214,3 +216,53 @@ class UserService:
             path="/"
 
         )
+
+    @classmethod
+    async def update_user(cls, id: str, dto: UpdateUserSchema):
+        user = await cls.boa.get_object(id=id)
+        if not user:
+            return await cls.error.not_found("User not found")
+
+        data = dto.dict(exclude_unset=True, exclude={"profile_image", "permission_groups_ids"})
+        for key, value in data.items():
+            setattr(user, key, value)
+
+        if dto.permission_groups_ids:
+            await user.permission_groups.clear()
+            for group_id in dto.permission_groups_ids:
+                permgrp = await cls.permission_groups.model.get_or_none(id=group_id)
+                if permgrp:
+                    await user.permission_groups.add(permgrp)
+
+
+        if dto.profile_picture_id:
+            img = await cls.file.model.get_or_none(id=dto.profile_picture_id)
+            if img:
+                user.profile_image = img
+        return await user.save()
+   
+    @classmethod
+    async def refresh_access(cls, refresh_token: str, response: Response):
+        new_tokens = cls.jwt.refresh_token(refresh_token)
+
+        response.set_cookie(
+            key="access_token",
+            value=new_tokens["access_token"],
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            max_age=900,
+            path="/"
+        )
+
+        response.set_cookie(
+            key="refresh_token",
+            value=new_tokens["refresh_token"],
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            max_age=604800,
+            path="/"
+        )
+
+        

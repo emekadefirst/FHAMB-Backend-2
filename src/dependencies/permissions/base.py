@@ -3,7 +3,7 @@ from src.apps.auth import User
 from src.enums.base import Action, Resource
 from src.error.base import ErrorHandler
 from src.utilities.crypto import JWTService
-from src.apps.auth.permssion import Permission
+from src.apps.auth.permisssion import Permission
 
 
 

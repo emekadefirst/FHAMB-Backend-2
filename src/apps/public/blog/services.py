@@ -132,7 +132,7 @@ class BlogService:
             "page": page,
             "page_size": count,
             "total": total,
-            "results": results,
+            "data": results,
         }
 
 

@@ -1,8 +1,8 @@
-from fastapi import Request, Depends, Response, Query
+from fastapi import Request, Depends, Response, Query, Cookie
 from src.apps.auth.user import User
 from typing import List, Optional
 from src.utilities.route_builder import build_router
-from src.apps.auth.user.schemas import UserCreateDto, UserLogin, UserObjectDto
+from src.apps.auth.user.schemas import UserCreateDto, UserLogin, UserObjectDto, UpdateUserSchema
 from src.apps.auth.user.services import UserService
 from src.utilities.crypto import JWTService
 
@@ -33,3 +33,16 @@ async def user_profile(current_user: User = Depends(UserService.jwt.get_current_
     return current_user
 
 
+@user_route.patch("/{id}", status_code=200)
+async def update_profile(id: str, dto: UpdateUserSchema):
+    return await UserService.update_user(id=id, dto=dto)
+
+
+@user_route.get("/refresh", status_code=200)
+async def refresh_token(
+    response: Response,
+    refresh_token: str = Cookie(None)
+):
+    if not refresh_token:
+        return {"error": "Missing refresh token"}
+    return await UserService.refresh_access(refresh_token, response)

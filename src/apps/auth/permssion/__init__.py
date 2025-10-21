@@ -1,1 +1,0 @@
-from src.apps.auth.permssion.models import Permission, PermissionGroup

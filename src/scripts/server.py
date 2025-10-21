@@ -25,11 +25,11 @@ root_logger.addHandler(file_handler)
 root_logger.setLevel(logging.INFO)
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    await CachingService.open_conn()
-    yield
-    await CachingService.close_conn()
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     await CachingService.open_conn()
+#     yield
+#     await CachingService.close_conn()
 
 
 app = FastAPI(
@@ -50,7 +50,7 @@ app = FastAPI(
             "description": "API for FHA Mortgage Bank"
         }
     ],
-    lifespan=lifespan,
+    # lifespan=lifespan,
     default_response_class=responses.ORJSONResponse,
 )
 

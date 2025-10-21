@@ -54,15 +54,13 @@ class JWTService:
             return None
 
     @staticmethod
-    def refresh_token(refresh_token: str) -> Dict[str, str]:
+    def refresh_token(refresh_token: HTTPAuthorizationCredentials = Depends(HTTPBearer()),):
         """
         Validates refresh token and issues a new pair of tokens.
         """
         payload = JWTService.decode_token(refresh_token)
-
         if payload.get("type") != "refresh":
-            raise error.unauthorized("Invalid token type")
-
+            raise error.get(400,"Invalid token type")
         user_id = payload.get("sub") 
         return JWTService.generate_token(user_id)
 

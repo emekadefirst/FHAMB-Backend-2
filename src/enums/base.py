@@ -59,10 +59,10 @@ class Action(str, Enum):
 
 class Resource(str, Enum):
     FILE = "file"
-    USER = "user"
+    AUTH = "auth"
     MAIL = "mail"
-    CONTACT = "contact"
-    SUBCRIBER = "subscriber"
+    PUBLIC = "punlic"
+
 
 class EmailStatus(str, Enum):
     PENDING = "pending"
