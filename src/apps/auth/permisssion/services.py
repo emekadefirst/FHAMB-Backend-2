@@ -11,7 +11,7 @@ class PermissionModelService:
 
     @classmethod
     async def fetch_all_permissions(cls):
-        return await cls.model.filter(is_deleted=False).all()
+        return await cls.boa.all()
 
     @classmethod
     async def create_permission(cls, dto: PermissionSchema):

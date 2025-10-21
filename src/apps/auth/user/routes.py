@@ -6,10 +6,18 @@ from src.apps.auth.user.schemas import UserCreateDto, UserLogin, UserObjectDto, 
 from src.apps.auth.user.services import UserService
 from src.utilities.crypto import JWTService
 
+from src.enums.base import Action, Resource
+from src.dependencies.permissions.base import AuthPermissionService
+
+
 user_route = build_router(path="users", tags=["User"])
 jwt = JWTService()
 
-@user_route.get("/", status_code=200)
+@user_route.get(
+        "/", 
+        status_code=200,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.READ, resource=Resource.AUTH))]
+        )
 async def get_all(
     is_staff: Optional[bool] = Query(None),
     is_admin: Optional[bool] = Query(None),
@@ -19,21 +27,38 @@ async def get_all(
 ):
     return await UserService.all(is_staff, is_admin, is_verified, limit, offset)
 
-@user_route.post("/", status_code=201)
+@user_route.post(
+        "/", 
+        status_code=201,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.CREATE, resource=Resource.AUTH))]
+)
 async def create_user(dto: UserCreateDto, request: Request, response: Response):
     return await UserService.create_user(dto=dto, request=request, response=response)
 
 
-@user_route.post("/login", status_code=200)
+@user_route.post(
+        "/login", 
+        status_code=200,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.READ, resource=Resource.AUTH))]
+        )
 async def login(dto: UserLogin, request: Request, response: Response):
     return await UserService.login_user(dto=dto, request=request, response=response)
 
-@user_route.get("/whoami", status_code=200, response_model=UserObjectDto)
+@user_route.get(
+        "/whoami", 
+        status_code=200, 
+        response_model=UserObjectDto,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.READ, resource=Resource.AUTH))]
+        )
 async def user_profile(current_user: User = Depends(UserService.jwt.get_current_user)):
     return current_user
 
 
-@user_route.patch("/{id}", status_code=200)
+@user_route.patch(
+        "/{id}", 
+        status_code=200,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.UPDATE, resource=Resource.AUTH))]
+        )
 async def update_profile(id: str, dto: UpdateUserSchema):
     return await UserService.update_user(id=id, dto=dto)
 

@@ -5,6 +5,10 @@ from src.utilities.crypto import JWTService
 from src.apps.public.blog.schemas import CategorySchema, BlogSchema
 from src.apps.auth.user import User
 
+from src.enums.base import Action, Resource
+from src.dependencies.permissions.base import AuthPermissionService
+
+
 
 category_router = build_router(path="categories", tags=["Categories"])
 blogs_router = build_router(path="blogs", tags=["Blogs"])
@@ -14,7 +18,10 @@ jwt = JWTService()
 # CATEGORY ROUTES
 # =======================
 
-@category_router.get("/")
+@category_router.get(
+        "/",
+        status_code=200,
+        )
 async def get_categories():
     return await CategoryService.all()
 
@@ -24,18 +31,30 @@ async def get_category(id: str):
     return await CategoryService.get(id)
 
 
-@category_router.post("/")
+@category_router.post(
+        "/",
+        status_code=201,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.CREATE, resource=Resource.PUBLIC))]
+        )
 async def create_category(dto: CategorySchema, user: User = Depends(jwt.get_current_user)):
     print(user)
     return await CategoryService.create(user=user, dto=dto)
 
 
-@category_router.patch("/{id}")
+@category_router.patch(
+        "/{id}",
+        status_code=200,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.UPDATE, resource=Resource.PUBLIC))]
+        )
 async def update_category(id: str, dto: CategorySchema):
     return await CategoryService.update(id=id, dto=dto)
 
 
-@category_router.delete("/{id}")
+@category_router.delete(
+        "/{id}",
+        status_code=204,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.DELETE, resource=Resource.PUBLIC))]
+)
 async def delete_category(id: str):
     return await CategoryService.delete(id=id)
 

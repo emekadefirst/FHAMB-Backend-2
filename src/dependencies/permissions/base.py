@@ -25,7 +25,7 @@ class AuthPermissionService:
                     return True
         return False
 
-    @staticmethod
+    @classmethod
     def permission_required(cls, action: Action, resource: Resource):
         async def dependency(user: User = Depends(cls.jwt.get_current_user)):
             if not await AuthPermissionService.has_permission(user, action, resource):

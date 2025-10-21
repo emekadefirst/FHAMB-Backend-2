@@ -61,7 +61,7 @@ class Resource(str, Enum):
     FILE = "file"
     AUTH = "auth"
     MAIL = "mail"
-    PUBLIC = "punlic"
+    PUBLIC = "public"
 
 
 class EmailStatus(str, Enum):
