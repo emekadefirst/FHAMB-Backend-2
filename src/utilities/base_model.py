@@ -1,8 +1,8 @@
 from tortoise import Model, fields, timezone
-
+import uuid
 
 class BaseModel(Model):
-    id = fields.UUIDField(pk=True)
+    id = fields.UUIDField(pk=True, default=uuid.uuid4, editable=False)
     created_at = fields.DatetimeField(null=True, auto_now_add=True)
     updated_at = fields.DatetimeField(null=True)
     is_deleted = fields.BooleanField(default=False)
@@ -16,11 +16,8 @@ class BaseModel(Model):
         abstract = True
         ordering = ["-created_at", "-updated_at"]
 
-class MetaData(Model):
-    device_id = fields.CharField(100, unique=True, null=True)
-    ip_address = fields.CharField(45, null=True)
-    latitude = fields.FloatField(null=True)
-    longitude = fields.FloatField(null=True)
+
+
 
 
 

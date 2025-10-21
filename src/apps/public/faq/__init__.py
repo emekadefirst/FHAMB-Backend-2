@@ -1,0 +1,1 @@
+from src.apps.public.faq.models import FAQ

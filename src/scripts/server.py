@@ -11,6 +11,7 @@ from src.logs.logger import JSONFormatter
 from src.dependencies.middlewares.logmiddleware import LoggingMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 import logging
+from src.core.cache import CachingService
 
 logging.getLogger("tortoise").setLevel(logging.CRITICAL)
 
@@ -22,6 +23,13 @@ file_handler = logging.FileHandler("logs/app.log", encoding="utf-8")
 file_handler.setFormatter(JSONFormatter())
 root_logger.addHandler(file_handler)
 root_logger.setLevel(logging.INFO)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await CachingService.open_conn()
+    yield
+    await CachingService.close_conn()
 
 
 app = FastAPI(
@@ -42,6 +50,7 @@ app = FastAPI(
             "description": "API for FHA Mortgage Bank"
         }
     ],
+    lifespan=lifespan,
     default_response_class=responses.ORJSONResponse,
 )
 

@@ -33,6 +33,10 @@ TORTOISE_ORM = {
     },
     "use_tz": True,
     "timezone": "Africa/Lagos",
+    "minsize": 5,          
+    "maxsize": 50,         
+    "max_queries": 500,    
+    "max_inactive_connection_lifetime": 600.0,  
 }
 
 

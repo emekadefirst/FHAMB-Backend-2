@@ -64,14 +64,19 @@ class Resource(str, Enum):
     CONTACT = "contact"
     SUBCRIBER = "subscriber"
 
-class EmailStatus(Enum):
+class EmailStatus(str, Enum):
     PENDING = "pending"
     SENT = "sent"
     FAILED = "failed"
 
 
-class EmailCategory(Enum):
+class EmailCategory(str, Enum):
     PROMOTIONAL = "promotional"
     TRANSACTIONAL = "transactional"
     NOTIFICATION = "notification"
     NEWSLETTER = "newsletter"
+
+
+class ContentStatus(str, Enum):
+    PUBLISH = "published"
+    DRAFT = "draft"

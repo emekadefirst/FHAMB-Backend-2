@@ -1,9 +1,9 @@
-from src.utilities.base_model import BaseModel, MetaData
+from src.utilities.base_model import BaseModel
 from tortoise import fields
 from src.utilities.hash import set_password
 
 
-class User(BaseModel, MetaData):
+class User(BaseModel):
     first_name = fields.CharField(max_length=30)
     last_name = fields.CharField(max_length=30)
     other_name = fields.CharField(max_length=30, null=True)
@@ -21,6 +21,10 @@ class User(BaseModel, MetaData):
     permission_groups = fields.ManyToManyField(
         "models.PermissionGroup"
     )
+    device_id = fields.CharField(100, unique=True, null=True)
+    ip_address = fields.CharField(45, null=True)
+    latitude = fields.FloatField(null=True)
+    longitude = fields.FloatField(null=True)
 
 
     class Meta:

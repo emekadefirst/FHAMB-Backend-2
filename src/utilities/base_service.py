@@ -18,15 +18,26 @@ class BaseObjectService:
         self,
         prefetch_related: Optional[List[str]] = None,
         select_related: Optional[List[str]] = None,
+        page: int = 1,
+        count: int = 10
     ):
+        offset = (page - 1) * count
         query = self.model.filter(is_deleted=False)
 
         if select_related:
             query = query.select_related(*select_related)
         if prefetch_related:
             query = query.prefetch_related(*prefetch_related)
+        total = await query.count()
+        query = query.offset(offset).limit(count)
+        results = await query.all()
+        return {
+            "page": page,
+            "page_size": count,
+            "total": total,
+            "results": results,
+        }
 
-        return await query.all()
 
     async def trash(self, id: str):
         obj = await self.model.filter(id=id, is_deleted=False).first()

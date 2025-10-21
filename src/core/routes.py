@@ -4,10 +4,13 @@ from src.apps.file.routes import file_router
 from src.apps.public.mail.routes import mail_router
 from src.apps.public.subscribers.routes import subscriber_router
 from src.apps.public.contact.routes import contact_router, team_router, social_router, branch_router
+from src.apps.public.blog.routes import category_router, blogs_router
 
 
 routes = [
     user_route,
+    category_router,
+    blogs_router,
     subscriber_router,
     permission_route, 
     permission_group_route,
