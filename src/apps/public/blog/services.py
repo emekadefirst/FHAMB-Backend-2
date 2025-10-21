@@ -4,6 +4,7 @@ from src.error.base import ErrorHandler
 from src.enums.base import ContentStatus
 from src.apps.auth.user import User
 from slugify import slugify
+from src.apps.file import File
 from src.apps.public.blog.schemas import CategorySchema, BlogSchema
 
 
@@ -70,12 +71,23 @@ class CategoryService:
 class BlogService:
     error = ErrorHandler(Blog)
     boa = BaseObjectService(Blog)
+    file = BaseObjectService(File)
 
     @classmethod
     async def create(cls, user: User, dto: BlogSchema):
-        blog = await cls.boa.model.create(**dto.dict(exclude={"author"}))
+        blog = cls.boa.model(**dto.dict(exclude={"author"}))
         blog.author = user
-        return await blog.save()
+        await blog.save()  
+
+        if dto.image_ids:
+            for image_id in dto.image_ids:
+                image = await cls.file.model.get_or_none(id=image_id)
+                if image:
+                    await blog.images.add(image)
+        return blog
+
+       
+
 
     @classmethod
     async def all(cls, author: str | None = None, category: str | None = None, page: int = 1, count: int = 10):
@@ -106,12 +118,11 @@ class BlogService:
                 "title": blog.title,
                 "slug": blog.slug,
                 "content": blog.content,
-                "published_at": blog.published_at,
                 "status": blog.status,
                 "category": blog.category.title if blog.category else None,
                 "author": f"{blog.author.first_name} {blog.author.last_name}" if blog.author else None,
-                "image_url": [img.file.url for img in blog.images] if blog.images else [],
-                "tags": [tag.name for tag in getattr(blog, "tags", [])], 
+                "images": [image.url for image in blog.images],
+                "tags": blog.tags, 
                 "views_count": blog.views_count,
                 "created_at": blog.created_at,
                 "updated_at": blog.updated_at,
