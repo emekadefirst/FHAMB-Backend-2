@@ -89,12 +89,20 @@ async def create_contact(data: ContactUsSchema, background_tasks: BackgroundTask
 async def update_contact(id: str, data: ContactUsSchema):
     return await ContactUsService.update(id, data)
 
-@contact_router.get("/{id}", status_code=200)
+@contact_router.get(
+        "/{id}", 
+        status_code=200,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.READ, resource=Resource.PUBLIC))]
+        )
 @cache(ttl=900)  # ✅ Cache 15 minutes
 async def get_contact(id: str, request: Request):
     return await ContactUsService.get(id=id)
 
-@contact_router.get("/", status_code=200)
+@contact_router.get(
+        "/", 
+        status_code=200,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.READ, resource=Resource.PUBLIC))]
+        )
 @cache(ttl=900)  # ✅ Cache 15 minutes (list of contact requests)
 async def list_contact(request: Request):
     return await ContactUsService.all()
