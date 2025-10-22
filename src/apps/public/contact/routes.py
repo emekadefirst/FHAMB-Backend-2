@@ -76,8 +76,7 @@ contact_router = build_router(path="contact-us", tags=["ContactUs"])
 
 @contact_router.post(
     "/",
-    status_code=201,
-    dependencies=[Depends(AuthPermissionService.permission_required(action=Action.CREATE, resource=Resource.PUBLIC))]
+    status_code=201
 )
 async def create_contact(data: ContactUsSchema, background_tasks: BackgroundTasks):
     return await ContactUsService.create(data, background_tasks)
