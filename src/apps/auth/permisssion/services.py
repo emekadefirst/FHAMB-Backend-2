@@ -58,10 +58,15 @@ class PermissionGroupModelService:
                 "id": str(g.id),
                 "name": g.name,
                 "permissions": [
-                    {"action": p.action, "object": p.resource} for p in g.permissions
+                    {
+                        "id": p.id,
+                        "action": p.action,      # convert Enum -> str
+                        "object": p.resource,    # convert Enum -> str
+                    }
+                    for p in g.permissions
                 ],
-                "created_at": g.created_at,
-                "updated_at": g.updated_at,
+                "created_at": g.created_at.isoformat() if g.created_at else None,
+                "updated_at": g.updated_at.isoformat() if g.updated_at else None,
             })
         return result
 

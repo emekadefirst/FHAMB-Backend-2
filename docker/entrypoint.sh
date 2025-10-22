@@ -12,5 +12,8 @@ else
     uv run aerich init-db
 fi
 
+echo "🌱 Running seed..."
+uv run seed  # no quotes, do NOT use exec here
+
 echo "🚀 Starting server..."
 exec "$@"

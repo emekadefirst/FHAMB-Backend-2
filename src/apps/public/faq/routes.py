@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends
 from src.utilities.route_builder import build_router
 from src.apps.public.faq.schema import FAQSchema
 from src.apps.public.faq.service import FAQService
+from src.core.cache import cache
 
-faq_router = build_router(path="/faqs", tags=["FAQs"])
+
+faq_router = build_router(path="faqs", tags=["FAQs"])
 
 
 from src.enums.base import Action, Resource
@@ -19,7 +21,7 @@ from src.dependencies.permissions.base import AuthPermissionService
 async def create_faq(dto: FAQSchema):
     return await FAQService.create(dto=dto)
 
-
+@cache(ttl=120)
 @faq_router.get(
         "/", 
         status_code=200
@@ -27,6 +29,7 @@ async def create_faq(dto: FAQSchema):
 async def list_faqs(author: str | None = None, category: str | None = None):
     return await FAQService.all(author=author, category=category)
 
+@cache(ttl=120)
 @faq_router.get("/{id}", status_code=200)
 async def get_faq(id: str):
     return await FAQService.get(id=id)

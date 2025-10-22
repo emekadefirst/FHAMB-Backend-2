@@ -66,9 +66,10 @@ ssh-keygen -t ed25519 -C "deploy-key" -f ~/.ssh/deploy-key -N ""
 ## ⚡ Alternative Docker Commands with `.env`
 
 ```bash
-
+docker compose -f docker/docker-compose.yml up -d --build
 docker compose --env-file .env.prod -f docker/docker-compose.yml up -d --build
 docker compose -f docker/docker-compose.yml down
+docker compose -f docker/docker-compose.yml logs -f
 
 ```
 
