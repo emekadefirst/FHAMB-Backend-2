@@ -63,7 +63,7 @@ async def delete_category(id: str):
 # BLOG ROUTES
 # =======================
 
-@blogs_router.get("/")
+@blogs_router.get("/", status_code=200)
 async def list_blogs(
     author: str = Query(None),
     category: str = Query(None)
@@ -71,21 +71,33 @@ async def list_blogs(
     return await BlogService.all(author=author, category=category)
 
 
-@blogs_router.get("/{id}")
+@blogs_router.get("/{id}", status_code=200)
 async def get_blog(id: str):
     return await BlogService.get(id)
 
 
-@blogs_router.post("/")
+@blogs_router.post(
+        "/",
+        status_code=201,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.CREATE, resource=Resource.PUBLIC))]
+        )
 async def create_blog(dto: BlogSchema, user: User = Depends(jwt.get_current_user)):
     return await BlogService.create(user=user, dto=dto)
 
 
-@blogs_router.patch("/{id}")
+@blogs_router.patch(
+        "/{id}",
+        status_code=200,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.UPDATE, resource=Resource.PUBLIC))]
+        )
 async def update_blog(id: str, dto: BlogSchema):
     return await BlogService.update(id=id, dto=dto)
 
 
-@blogs_router.delete("/{id}")
+@blogs_router.delete(
+        "/{id}",
+        status_code=204,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.DELETE, resource=Resource.PUBLIC))]
+        )
 async def delete_blog(id: str):
     return await BlogService.delete(id=id)

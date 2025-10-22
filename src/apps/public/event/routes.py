@@ -6,6 +6,9 @@ from src.apps.public.event.schemas import EventSchema, EventDateSchema
 from src.apps.auth.user import User
 from src.utilities.crypto import  JWTService
 
+from src.enums.base import Action, Resource
+from src.dependencies.permissions.base import AuthPermissionService
+
 event_router = build_router(path="events", tags=["Events"])
 jwt = JWTService()
 
@@ -30,7 +33,11 @@ async def get_event(slug_or_id: str):
         return await EventService.get(slug=slug_or_id)
 
 
-@event_router.post("", status_code=201)
+@event_router.post(
+        "/", 
+        status_code=201,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.CREATE, resource=Resource.PUBLIC))]
+        )
 async def create_event(
     dto: EventSchema = Body(...),
     user: User = Depends(jwt.get_current_user),
@@ -38,7 +45,11 @@ async def create_event(
     return await EventService.create(user, dto)
 
 
-@event_router.patch("/{id}", status_code=200)
+@event_router.patch(
+        "/{id}", 
+        status_code=200,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.CREATE, resource=Resource.PUBLIC))]
+        )
 async def update_event(
     id: str = Path(..., description="Event ID"),
     dto: EventSchema = Body(...),
@@ -48,13 +59,21 @@ async def update_event(
     return await EventService.update(id, dto)
 
 
-@event_router.delete("/{id}", status_code=204)
+@event_router.delete(
+        "/{id}", 
+        status_code=204,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.DELETE, resource=Resource.PUBLIC))]
+        )
 async def delete_event(id: str):
     return await EventService.delete(id=id)
 
 
 
-@event_router.post("/dates", status_code=201)
+@event_router.post(
+        "/dates", 
+        status_code=201,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.CREATE, resource=Resource.PUBLIC))]
+        )
 async def create_event_date(dto: EventDateSchema):
     return await EventDateService.create(dto=dto)
  
@@ -64,11 +83,19 @@ async def get_event_date(event_id: str):
 
 
 
-@event_router.patch("/dates/{id}", status_code=200)
+@event_router.patch(
+        "/dates/{id}", 
+        status_code=200,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.UPDATE, resource=Resource.PUBLIC))]
+        )
 async def update_event_date(id: str, dto: EventDateSchema):
     return await EventDateService.update(id=id, dto=dto)
 
 
-@event_router.delete("/dates/{id}", status_code=200)
+@event_router.delete(
+        "/dates/{id}", 
+        status_code=204,
+        dependencies=[Depends(AuthPermissionService.permission_required(action=Action.DELETE, resource=Resource.PUBLIC))]
+        )
 async def delete_event_date(id: str):
     return await EventDateService.delete(id=id)
