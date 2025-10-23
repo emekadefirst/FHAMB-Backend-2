@@ -2,7 +2,7 @@ import jwt
 from argon2 import PasswordHasher
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from datetime import datetime, timedelta, timezone
-from fastapi import Depends, status
+from fastapi import Depends, status, Request, HTTPException
 from jwt import ExpiredSignatureError, InvalidTokenError, decode
 from src.apps.auth.user.models import User
 from typing import Dict
@@ -91,4 +91,44 @@ class JWTService:
             return user
 
         except (ExpiredSignatureError, InvalidTokenError):
-            raise error.unauthorized("Token is expired or invalid")
+            raise error.get(401, "Token is expired or invalid")
+        
+
+    @staticmethod
+    async def get_current_user(
+        request: Request,
+        token: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False)),
+    ):
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+        access_token = request.cookies.get("access_token")
+
+        if not access_token and token and token.credentials:
+            access_token = token.credentials
+
+        if not access_token:
+            raise credentials_exception
+
+        try:
+            payload = JWTService.decode_token(access_token)
+        except ExpiredSignatureError:
+            raise HTTPException(status_code=401, detail="Access token expired")
+        except InvalidTokenError:
+            raise HTTPException(status_code=401, detail="Invalid access token")
+
+        sub = payload.get("sub")
+        if not sub:
+            raise credentials_exception
+
+        user_id = sub.get("id") if isinstance(sub, dict) else sub
+
+        user = await User.get_or_none(id=user_id)
+        if not user:
+            raise credentials_exception
+
+        return user
+
