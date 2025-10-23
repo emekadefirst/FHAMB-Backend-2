@@ -17,8 +17,8 @@ jwt = JWTService()
 
 # ==============================
 # Event Routes
-# ==============================
-@cache(ttl=60)  # Cache for 1 minute
+# # ==============================
+# @cache(ttl=60)  # Cache for 1 minute
 @event_router.get("/", status_code=200)
 async def all_events(
     added_by: str | None = Query(None, description="Filter by added_by's name"),
@@ -30,7 +30,7 @@ async def all_events(
     return await EventService.all(added_by=added_by, category=category, page=page, count=count)
 
 
-@cache(ttl=120)  # Cache for 2 minutes
+# @cache(ttl=120)  # Cache for 2 minutes
 @event_router.get("/{slug_or_id}", status_code=200)
 async def get_event(slug_or_id: str):
     """Get a single event by ID (UUID) or slug."""
@@ -91,7 +91,7 @@ async def create_event_date(dto: EventDateSchema):
     return await EventDateService.create(dto=dto)
 
 
-@cache(ttl=60)
+# @cache(ttl=60)
 @event_router.get("/dates/{event_id}", status_code=200)
 async def get_event_date(event_id: str):
     """Get all dates for a specific event."""

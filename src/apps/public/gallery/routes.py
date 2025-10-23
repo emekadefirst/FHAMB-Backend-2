@@ -20,7 +20,7 @@ async def create_gallery(dto: GallerySchema):
     return await GalleryService.create(dto=dto)
 
 
-@cache(ttl=180)  # ✅ Cached for 3 minutes
+# @cache(ttl=180)  # ✅ Cached for 3 minutes
 @gallery_router.get(
     "/", 
     status_code=200
@@ -32,7 +32,7 @@ async def list_galleries(
     return await GalleryService.all(author=author, category=category)
 
 
-@cache(ttl=240)  # ✅ Cached for 4 minutes
+# @cache(ttl=240)  # ✅ Cached for 4 minutes
 @gallery_router.get(
     "/{id}", 
     status_code=200
@@ -61,6 +61,6 @@ async def delete_gallery(id: str):
 
   # ✅ Cached for 2 minutes
 @gallery_router.get("/search/", status_code=200)
-@cache(ttl=120)
+# @cache(ttl=120)
 async def search_galleries(q: str = Query(..., description="Search galleries by keyword")):
     return await GalleryService.search(query=q)

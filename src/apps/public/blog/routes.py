@@ -17,13 +17,13 @@ jwt = JWTService()
 # =======================
 
 @category_router.get("/", status_code=200)
-@cache(ttl=600)  # ✅ Cache for 10 minutes (categories rarely change)
+# @cache(ttl=600)  # ✅ Cache for 10 minutes (categories rarely change)
 async def get_categories(request: Request):
     return await CategoryService.all()
 
 
 @category_router.get("/{id}", status_code=200)
-@cache(ttl=600)  # ✅ Cache for 10 minutes per category
+# @cache(ttl=600)  # ✅ Cache for 10 minutes per category
 async def get_category(id: str, request: Request):
     return await CategoryService.get(id)
 
@@ -60,13 +60,13 @@ async def delete_category(id: str):
 # =======================
 
 @blogs_router.get("/", status_code=200)
-@cache(ttl=300)  # ✅ Cache for 5 minutes (blog lists change more often)
+# @cache(ttl=300)  # ✅ Cache for 5 minutes (blog lists change more often)
 async def list_blogs(request: Request, author: str = Query(None), category: str = Query(None)):
     return await BlogService.all(author=author, category=category)
 
 
 @blogs_router.get("/{id}", status_code=200)
-@cache(ttl=600)  # ✅ Cache for 10 minutes per blog post
+# @cache(ttl=600)  # ✅ Cache for 10 minutes per blog post
 async def get_blog(id: str, request: Request):
     return await BlogService.get(id)
 

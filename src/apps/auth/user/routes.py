@@ -19,7 +19,7 @@ jwt = JWTService()
     status_code=200,
     dependencies=[Depends(AuthPermissionService.permission_required(action=Action.READ, resource=Resource.AUTH))]
 )
-@cache(ttl=300)   # ✅ Cache for 5 minutes (industry standard for listing endpoints)
+# @cache(ttl=300)   # ✅ Cache for 5 minutes (industry standard for listing endpoints)
 async def get_all(
     request: Request,
     is_staff: Optional[bool] = Query(None),
@@ -54,7 +54,7 @@ async def login(dto: UserLogin, request: Request, response: Response):
     "/whoami", 
     status_code=200, 
 )
-@cache(ttl=120)   # ✅ Cache for 2 minutes (since user details may change)
+# @cache(ttl=120)   # ✅ Cache for 2 minutes (since user details may change)
 async def user_profile(request: Request, current_user: User = Depends(UserService.jwt.get_current_user)):
     return current_user
 
@@ -71,7 +71,7 @@ async def update_profile(id: str, dto: UpdateUserSchema):
 
 # -------------------- REFRESH TOKEN -------------------- #
 @user_route.get("/refresh", status_code=200)
-@cache(ttl=60)   # ✅ Cache for 1 minute (short TTL since tokens refresh frequently)
+# @cache(ttl=60)   # ✅ Cache for 1 minute (short TTL since tokens refresh frequently)
 async def refresh_token(
     request: Request,
     response: Response,

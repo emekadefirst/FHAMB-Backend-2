@@ -78,7 +78,7 @@ async def delete_permission(permission_id: str, current_user: User = Depends(Use
     status_code=200,
     dependencies=[Depends(AuthPermissionService.permission_required(action=Action.READ, resource=Resource.AUTH))]
 )
-@cache(ttl=300)
+# @cache(ttl=300)
 async def list_permission_groups(request: Request):
     return await PermissionGroupModelService.fetch_all_permission_groups()
    
@@ -98,7 +98,7 @@ async def create_permission_group(dto: PermissionGroupSchema):
     status_code=200,
     dependencies=[Depends(AuthPermissionService.permission_required(action=Action.READ, resource=Resource.AUTH))]
 )
-@cache(ttl=600)
+# @cache(ttl=600)
 async def get_permission_group(group_id: str):
     return await PermissionGroupModelService.fetch_permission_group_by_id(group_id)
 

@@ -20,7 +20,7 @@ async def create_mail(dto: EmailSchema, task: BackgroundTasks):
     return await EmailRouteService.create_mail(dto=dto, task=task)
 
 
-@cache(ttl=180)  # ✅ Cached for 3 minutes
+# @cache(ttl=180)  # ✅ Cached for 3 minutes
 @mail_router.get(
     "/",
     status_code=200,
@@ -30,7 +30,7 @@ async def list_mail(limit: int = Query(50, ge=1, le=100), offset: int = Query(0,
     return await EmailRouteService.all_mail(limit=limit, offset=offset)
 
 
-@cache(ttl=120)  # ✅ Cached for 2 minutes
+# @cache(ttl=120)  # ✅ Cached for 2 minutes
 @mail_router.get(
     "/search",
     status_code=200,

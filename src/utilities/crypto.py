@@ -71,27 +71,6 @@ class JWTService:
             raise error.unauthorized("Invalid or expired token")
         return payload.get("sub")
     
-    @staticmethod
-    async def get_current_user(
-        token: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
-    ):
-        from src.apps.auth.user.models import User
-        error = ErrorHandler(User)
-
-        try:
-            payload = decode(
-                token.credentials, JWT_ACCESS_SECRET, algorithms=[JWT_ALGORITHM]
-            )
-            user_id: str = payload.get("sub")
-            if not user_id:
-                raise error.get(401)
-            user = await User.get_or_none(id=user_id)
-            if not user:
-                raise error.get(404)
-            return user
-
-        except (ExpiredSignatureError, InvalidTokenError):
-            raise error.get(401, "Token is expired or invalid")
         
 
     @staticmethod

@@ -28,12 +28,12 @@ async def update_social(id: str, data: SocialSchema):
     return await SocialService.update(id, data)
 
 @social_router.get("/{id}", status_code=200)
-@cache(ttl=900)  # ✅ Cache 15 minutes for individual social record
+# @cache(ttl=900)  # ✅ Cache 15 minutes for individual social record
 async def get_social(id: str, request: Request):
     return await SocialService.get(id=id)
 
 @social_router.get("/", status_code=200)
-@cache(ttl=900)  # ✅ Cache 15 minutes for all social links
+# @cache(ttl=900)  # ✅ Cache 15 minutes for all social links
 async def list_social(request: Request):
     return await SocialService.all()
 
@@ -59,12 +59,12 @@ async def update_branch(id: str, data: BranchSchema):
     return await BranchService.update(id, data)
 
 @branch_router.get("/{id}", status_code=200)
-@cache(ttl=1800)  # ✅ Cache 30 minutes (branch details rarely change)
+# @cache(ttl=1800)  # ✅ Cache 30 minutes (branch details rarely change)
 async def get_branch(id: str, request: Request):
     return await BranchService.get(id=id)
 
 @branch_router.get("/", status_code=200)
-@cache(ttl=1800)  # ✅ Cache 30 minutes (list of branches)
+# @cache(ttl=1800)  # ✅ Cache 30 minutes (list of branches)
 async def list_branch(request: Request):
     return await BranchService.all()
 
@@ -94,7 +94,7 @@ async def update_contact(id: str, data: ContactUsSchema):
         status_code=200,
         dependencies=[Depends(AuthPermissionService.permission_required(action=Action.READ, resource=Resource.PUBLIC))]
         )
-@cache(ttl=900)  # ✅ Cache 15 minutes
+# @cache(ttl=900)  # ✅ Cache 15 minutes
 async def get_contact(id: str, request: Request):
     return await ContactUsService.get(id=id)
 
@@ -103,7 +103,7 @@ async def get_contact(id: str, request: Request):
         status_code=200,
         dependencies=[Depends(AuthPermissionService.permission_required(action=Action.READ, resource=Resource.PUBLIC))]
         )
-@cache(ttl=900)  # ✅ Cache 15 minutes (list of contact requests)
+# @cache(ttl=900)  # ✅ Cache 15 minutes (list of contact requests)
 async def list_contact(request: Request):
     return await ContactUsService.all()
 
@@ -130,11 +130,11 @@ async def update_team(id: str, data: TeamSchema):
     return await TeamService.update(id, data)
 
 @team_router.get("/{id}", status_code=200)
-@cache(ttl=900)  # ✅ Cache 15 minutes per team member
+# @cache(ttl=900)  # ✅ Cache 15 minutes per team member
 async def get_team(id: str, request: Request):
     return await TeamService.get(id=id)
 
 @team_router.get("/", status_code=200)
-@cache(ttl=900)  # ✅ Cache 15 minutes for full team listing
+# @cache(ttl=900)  # ✅ Cache 15 minutes for full team listing
 async def list_team(request: Request):
     return await TeamService.all()

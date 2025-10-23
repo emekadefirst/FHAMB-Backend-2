@@ -20,7 +20,7 @@ async def create_subscriber(data: SubscriberSchema):
 async def update_subscriber(id: str, data: SubscriberSchema):
     return await SubscriberService.update(id, data)
 
-@cache(ttl=180)  # ✅ Cached for 3 minutes
+# @cache(ttl=180)  # ✅ Cached for 3 minutes
 @subscriber_router.get(
     "/{id}",
     status_code=200,
@@ -29,7 +29,7 @@ async def update_subscriber(id: str, data: SubscriberSchema):
 async def get_subscriber(id: str):
     return await SubscriberService.get(id=id)
 
-@cache(ttl=180)  # ✅ Cached for 3 minutes
+# @cache(ttl=180)  # ✅ Cached for 3 minutes
 @subscriber_router.get(
     "/",
     status_code=200,
