@@ -53,7 +53,6 @@ async def login(dto: UserLogin, request: Request, response: Response):
 @user_route.get(
     "/whoami", 
     status_code=200, 
-    dependencies=[Depends(AuthPermissionService.permission_required(action=Action.READ, resource=Resource.AUTH))]
 )
 @cache(ttl=120)   # ✅ Cache for 2 minutes (since user details may change)
 async def user_profile(request: Request, current_user: User = Depends(UserService.jwt.get_current_user)):
