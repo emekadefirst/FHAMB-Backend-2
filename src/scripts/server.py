@@ -65,6 +65,8 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 allowed_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
     "https://fhamortgage.gov.ng",
     "https://www.fhamortgage.gov.ng",
     "https://api.fhamortgage.gov.ng"

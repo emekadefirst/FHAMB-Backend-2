@@ -59,7 +59,8 @@ async def delete_gallery(id: str):
     return await GalleryService.delete(id=id)
 
 
-@cache(ttl=120)  # ✅ Cached for 2 minutes
+  # ✅ Cached for 2 minutes
 @gallery_router.get("/search/", status_code=200)
+@cache(ttl=120)
 async def search_galleries(q: str = Query(..., description="Search galleries by keyword")):
     return await GalleryService.search(query=q)

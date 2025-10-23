@@ -19,7 +19,7 @@ jwt = JWTService()
 # Event Routes
 # ==============================
 @cache(ttl=60)  # Cache for 1 minute
-@event_router.get("", status_code=200)
+@event_router.get("/", status_code=200)
 async def all_events(
     added_by: str | None = Query(None, description="Filter by added_by's name"),
     category: str | None = Query(None, description="Filter by category"),
