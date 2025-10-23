@@ -67,6 +67,7 @@ allowed_origins = [
     "http://127.0.0.1:5173",
     "http://localhost:5174",
     "http://127.0.0.1:5174",
+    "https://fhamb-fe.vercel.app",
     "https://fhamortgage.gov.ng",
     "https://www.fhamortgage.gov.ng",
     "https://api.fhamortgage.gov.ng"
