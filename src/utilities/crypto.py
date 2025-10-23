@@ -50,8 +50,10 @@ class JWTService:
         try:
             payload = jwt.decode(token, JWT_ACCESS_SECRET, algorithms=[JWT_ALGORITHM])
             return payload
-        except jwt.JWTError:
-            return None
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
+        except jwt.InvalidTokenError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
     @staticmethod
     def refresh_token(refresh_token: HTTPAuthorizationCredentials = Depends(HTTPBearer()),):
