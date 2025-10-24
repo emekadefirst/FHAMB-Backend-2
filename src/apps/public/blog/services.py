@@ -137,8 +137,35 @@ class BlogService:
 
 
     @classmethod
-    async def get(cls, id: str):
-        return await cls.boa.get_object_or_404(id=id)
+    async def get(cls, id: str | None = None, slug: str | None = None):
+        if not id and not slug:
+            raise cls.error.get(400, "Provide either 'id' or 'slug' to fetch the event.")
+
+        query = cls.boa.model.filter(is_deleted=False, status=ContentStatus.PUBLISH)
+        
+        if id:
+            query = query.filter(id=id)
+        elif slug:
+            query = query.filter(slug=slug)
+        
+        blog = await query.prefetch_related("images").select_related("added_by").first()
+        
+        if not blog:
+            raise cls.error.get(404, "Event not found")
+        return {
+                "id": str(blog.id),
+                "title": blog.title,
+                "slug": blog.slug,
+                "content": blog.content,
+                "status": blog.status,
+                "category": blog.category.title if blog.category else None,
+                "author": f"{blog.author.first_name} {blog.author.last_name}" if blog.author else None,
+                "images": [image.url for image in blog.images],
+                "tags": blog.tags, 
+                "views_count": blog.views_count,
+                "created_at": blog.created_at,
+                "updated_at": blog.updated_at,
+            }
 
     @classmethod
     async def update(cls, id: str, dto: BlogSchema):

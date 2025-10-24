@@ -6,6 +6,7 @@ from src.apps.public.blog.schemas import CategorySchema, BlogSchema
 from src.apps.auth.user import User
 from src.core.cache import cache
 from src.enums.base import Action, Resource
+from uuid import UUID
 from src.dependencies.permissions.base import AuthPermissionService
 
 category_router = build_router(path="categories", tags=["Categories"])
@@ -65,10 +66,14 @@ async def list_blogs(request: Request, author: str = Query(None), category: str 
     return await BlogService.all(author=author, category=category)
 
 
-@blogs_router.get("/{id}", status_code=200)
+@blogs_router.get("/{slug_or_id}", status_code=200)
 # @cache(ttl=600)  # ✅ Cache for 10 minutes per blog post
-async def get_blog(id: str, request: Request):
-    return await BlogService.get(id)
+async def get_blog(slug_or_id: str, request: Request):
+    try:
+        UUID(slug_or_id)
+        return await BlogService.get(id=slug_or_id)
+    except ValueError:
+        return await BlogService.get(slug=slug_or_id)
 
 
 @blogs_router.post(
