@@ -115,38 +115,75 @@ class ContactUsService:
         return await cls.boa.all()
 
 
-
 class TeamService:
     boa = BaseObjectService(Team)
     error = ErrorHandler(Team)
     file = BaseObjectService(File)
+    social_boa = BaseObjectService(Social)
 
     @classmethod
     async def create(cls, dto: TeamSchema):
+        # Convert to dict but exclude M2M and FK
         data_dict = dto.dict(exclude={"image_id", "socials"})
 
+        # Create base team
         team = await cls.boa.model.create(**data_dict)
 
+        # Attach image (FK)
         if dto.image_id:
             image = await cls.file.model.get_or_none(id=dto.image_id)
             if image:
                 team.image = image
                 await team.save()
 
+        # Handle ManyToMany socials
         if dto.socials:
-            await team.socials.add(*dto.socials)
+            for social_data in dto.socials:
+                # Check if a social with the same name/url exists
+                existing_social = await cls.social_boa.model.get_or_none(
+                    name=social_data.name, url=social_data.url
+                )
+                if existing_social:
+                    await team.socials.add(existing_social)
+                else:
+                    new_social = await cls.social_boa.model.create(**social_data.dict())
+                    await team.socials.add(new_social)
 
         return team
-
 
     @classmethod
     async def update(cls, id: str, dto: TeamSchema):
         obj = await cls.boa.get_object_or_404(id=id)
         if not obj:
             raise cls.error.get(404)
-        for field, value in dto.dict(exclude_unset=True).items():
+
+        update_data = dto.dict(exclude_unset=True, exclude={"socials", "image_id"})
+
+        # Update base fields
+        for field, value in update_data.items():
             setattr(obj, field, value)
         await obj.save()
+
+        # Update image if provided
+        if dto.image_id:
+            image = await cls.file.model.get_or_none(id=dto.image_id)
+            if image:
+                obj.image = image
+                await obj.save()
+
+        # Update socials if provided
+        if dto.socials is not None:
+            await obj.socials.clear()  # Remove all existing
+            for social_data in dto.socials:
+                existing_social = await cls.social_boa.model.get_or_none(
+                    name=social_data.name, url=social_data.url
+                )
+                if existing_social:
+                    await obj.socials.add(existing_social)
+                else:
+                    new_social = await cls.social_boa.model.create(**social_data.dict())
+                    await obj.socials.add(new_social)
+
         return obj
 
     @classmethod
@@ -158,4 +195,6 @@ class TeamService:
 
     @classmethod
     async def all(cls, prefetch: Optional[List[str]] = None, select: Optional[List[str]] = None):
+        # Prefetch socials and image if not specified
+        prefetch = prefetch or ["socials", "image"]
         return await cls.boa.all(prefetch_related=prefetch, select_related=select)

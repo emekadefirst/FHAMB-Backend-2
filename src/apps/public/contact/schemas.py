@@ -36,6 +36,6 @@ class TeamSchema(BaseModel):
     position: Optional[str] = Field(..., max_length=255)
     about: Optional[str] = None
     rank: Optional[int] = None
-    socials: Optional[List[SocialSchema]] = []
+    socials: Optional[List[SocialSchema]]
 
 
