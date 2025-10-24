@@ -124,8 +124,8 @@ class TeamService:
     @classmethod
     async def create(cls, dto: TeamSchema):
         data = await cls.boa.model.create(**dto.dict(exclude={"image_id"}))
-        image = await cls.file.get_object_or_404(id=dto.image_id)
-        data.image.add(image)
+        image = await cls.file.model.get_or_none(dto.image_id)
+        data.image = image
         return await data.save()
 
     @classmethod
