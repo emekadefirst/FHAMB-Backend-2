@@ -9,19 +9,22 @@ cd "$(dirname "$0")"
 # Ensure Tortoise config path exists
 TORTOISE_CONFIG="src.core.database.TORTOISE_ORM"
 
-if [ -d "./migrations" ]; then
+# Check if migrations folder exists and has migration files
+if [ -d "./migrations/models" ] && [ "$(ls -A ./migrations/models 2>/dev/null)" ]; then
     echo "📦 Running Aerich upgrade..."
-    uv run aerich migrate || echo "No new migrations found."
+    uv run aerich migrate || echo "⚠️ No new migrations found."
     uv run aerich upgrade
 else
-    echo "🧩 Initializing Aerich..."
-    uv run aerich init -t $TORTOISE_CONFIG
+    echo "🧩 No migrations found. Initializing Aerich..."
     uv run aerich init-db
 fi
 
 echo "🌱 Running seed..."
-uv run seed || echo "⚠️ No seed script found or it failed."
+if uv run seed; then
+    echo "✅ Seeding complete."
+else
+    echo "⚠️ No seed script found or seeding failed."
+fi
 
 echo "🚀 Starting server..."
 exec "$@"
-
