@@ -148,10 +148,10 @@ class BlogService:
         elif slug:
             query = query.filter(slug=slug)
         
-        blog = await query.prefetch_related("images").select_related("added_by").first()
+        blog = await query.prefetch_related("images").select_related("category", "author").first()
         
         if not blog:
-            raise cls.error.get(404, "Event not found")
+            raise cls.error.get(404, "Blog not found")
         return {
                 "id": str(blog.id),
                 "title": blog.title,
