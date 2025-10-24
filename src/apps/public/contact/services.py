@@ -218,7 +218,7 @@ class TeamService:
         prefetch: Optional[List[str]] = None,
         select: Optional[List[str]] = None,
     ):
-        query: QuerySet = cls.boa.model.all()
+        query: QuerySet = cls.boa.model.filter(is_deleted=False)
         if prefetch:
             query = query.prefetch_related(*prefetch)
         else:
