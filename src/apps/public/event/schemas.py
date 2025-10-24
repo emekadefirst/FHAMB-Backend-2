@@ -12,7 +12,7 @@ class EventSchema(BaseModel):
     image_ids: Optional[List[str]] = Field(default_factory=list)  
     latitude: Optional[float] = None
     longitude: Optional[float] = None
-    map_link: Optional[str] = Field(None, max_length=600)
+    # map_link: Optional[str] = Field(None, max_length=600)
 
 
 class EventDateSchema(BaseModel):

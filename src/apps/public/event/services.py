@@ -49,7 +49,7 @@ class EventService:
                 "venue": event.venue,
                 "added_by": f"{event.added_by.first_name} {event.added_by.last_name}" if event.added_by else None,
                 "images": [image.url for image in event.images],
-                "map_link": event.map_link,
+                # "map_link": event.map_link,
                 "created_at": event.created_at,
                 "updated_at": event.updated_at,
             })
