@@ -123,10 +123,21 @@ class TeamService:
 
     @classmethod
     async def create(cls, dto: TeamSchema):
-        data = await cls.boa.model.create(**dto.dict(exclude={"image_id"}))
-        image = await cls.file.model.get_or_none(dto.image_id)
-        data.image = image
-        return await data.save()
+        data_dict = dto.dict(exclude={"image_id", "socials"})
+
+        team = await cls.boa.model.create(**data_dict)
+
+        if dto.image_id:
+            image = await cls.file.model.get_or_none(id=dto.image_id)
+            if image:
+                team.image = image
+                await team.save()
+
+        if dto.socials:
+            await team.socials.add(*dto.socials)
+
+        return team
+
 
     @classmethod
     async def update(cls, id: str, dto: TeamSchema):
