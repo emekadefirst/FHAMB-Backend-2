@@ -6,6 +6,7 @@ from src.libs.smtp.templates.contactus import contact
 from src.apps.public.contact import Social, Branch, ContactUs, Team
 from src.error.base import ErrorHandler
 from src.apps.file.models import File
+from tortoise.queryset import QuerySet
 from src.apps.public.contact.schemas import ContactUsSchema, TeamSchema, BranchSchema, SocialSchema
 
 
@@ -180,13 +181,90 @@ class TeamService:
 
     @classmethod
     async def get(cls, **filters):
-        obj = await cls.boa.get_object_or_404(**filters)
+        obj = await cls.boa.model.filter(**filters).prefetch_related("socials").select_related("image").first()
         if not obj:
-            raise cls.error.get(404)
-        return obj
+            raise cls.error(404)
+
+
+        socials = await obj.socials.all()
+
+        return {
+            "id": str(obj.id),
+            "name": obj.name,
+            "position": obj.position,
+            "about": obj.about,
+            "rank": obj.rank,
+            "image": obj.image.url if obj.image else None,
+            "socials": [
+                {
+                    "id": str(s.id),
+                    "name": s.name,
+                    "url": s.url,
+                    "public": s.public,
+                }
+                for s in socials
+            ],
+            "created_at": obj.created_at,
+            "updated_at": obj.updated_at,
+        }
+
+
 
     @classmethod
-    async def all(cls, prefetch: Optional[List[str]] = None, select: Optional[List[str]] = None):
-        # Prefetch socials and image if not specified
-        prefetch = prefetch or ["socials", "image"]
-        return await cls.boa.all(prefetch_related=prefetch, select_related=select)
+    async def all(
+        cls,
+        page: int = 1,
+        page_size: int = 10,
+        prefetch: Optional[List[str]] = None,
+        select: Optional[List[str]] = None,
+    ):
+        query: QuerySet = cls.boa.model.all()
+        if prefetch:
+            query = query.prefetch_related(*prefetch)
+        else:
+            query = query.prefetch_related("socials")
+
+        if select:
+            query = query.select_related(*select)
+        else:
+            query = query.select_related("image")
+
+        total = await query.count()
+        teams = await query.offset((page - 1) * page_size).limit(page_size)
+
+        results = []
+        for team in teams:
+            socials = await cls.social_boa.model.all()
+            results.append({
+                "id": str(team.id),
+                "name": team.name,
+                "position": team.position,
+                "about": team.about,
+                "rank": team.rank,
+                "image": team.image.url if team.image else None,
+                "socials": [
+                    {
+                        "id": str(s.id),
+                        "name": s.name,
+                        "url": s.url,
+                        "public": s.public,
+                    }
+                    for s in socials
+                ],
+                "created_at": team.created_at,
+                "updated_at": team.updated_at,
+            })
+
+        return {
+            "page": page,
+            "page_size": page_size,
+            "total": total,
+            "data": results,
+        }
+
+
+    @classmethod
+    async def delete(cls, id: str):
+        return await cls.boa.trash(id=id)
+    
+

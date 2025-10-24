@@ -135,6 +135,20 @@ async def get_team(id: str, request: Request):
     return await TeamService.get(id=id)
 
 @team_router.get("/", status_code=200)
-# @cache(ttl=900)  # ✅ Cache 15 minutes for full team listing
-async def list_team(request: Request):
-    return await TeamService.all()
+# @cache(ttl=900)  # ✅ Uncomment if you want caching for 15 mins
+async def list_team(
+    request: Request,
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(10, ge=1, le=100, description="Number of records per page"),
+):
+
+    return await TeamService.all(page=page, page_size=page_size)
+
+
+@team_router.delete(
+    "/{id}", 
+    status_code=204,
+    dependencies=[Depends(AuthPermissionService.permission_required(action=Action.DELETE, resource=Resource.PUBLIC))]
+    )
+async def delete_team(id: str):
+    return await TeamService.delete(id=id)

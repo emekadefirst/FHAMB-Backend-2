@@ -12,6 +12,7 @@ class Event(BaseModel):
     venue = fields.CharField(255, null=True)  
     latitude = fields.FloatField(null=True)
     longitude = fields.FloatField(null=True)
+    map_link = fields.CharField(600, null=True)
     images = fields.ManyToManyField("models.File", related_name="event_media")
 
     def __str__(self):
