@@ -123,33 +123,25 @@ class TeamService:
 
     @classmethod
     async def create(cls, dto: TeamSchema):
-        # Convert to dict but exclude M2M and FK
         data_dict = dto.dict(exclude={"image_id", "socials"})
 
-        # Create base team
-        team = await cls.boa.model.create(**data_dict)
+        image = await cls.file.model.get_or_none(id=dto.image_id)
+        if not image:
+            raise cls.error.get(404, "Image not found")
 
-        # Attach image (FK)
-        if dto.image_id:
-            image = await cls.file.model.get_or_none(id=dto.image_id)
-            if image:
-                team.image = image
-                await team.save()
+        # ✅ Create team with image set immediately
+        team = await cls.boa.model.create(**data_dict, image=image)
 
-        # Handle ManyToMany socials
+        # ✅ Handle socials (create or link)
         if dto.socials:
-            for social_data in dto.socials:
-                # Check if a social with the same name/url exists
-                existing_social = await cls.social_boa.model.get_or_none(
-                    name=social_data.name, url=social_data.url
-                )
-                if existing_social:
-                    await team.socials.add(existing_social)
-                else:
-                    new_social = await cls.social_boa.model.create(**social_data.dict())
-                    await team.socials.add(new_social)
+            social_objs = []
+            for social in dto.socials:
+                obj, _ = await Social.get_or_create(**social.dict())
+                social_objs.append(obj)
+            await team.socials.add(*social_objs)
 
         return team
+
 
     @classmethod
     async def update(cls, id: str, dto: TeamSchema):
