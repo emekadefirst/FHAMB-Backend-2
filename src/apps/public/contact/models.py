@@ -36,7 +36,7 @@ class ContactUs(BaseModel):
 
 
 class Team(BaseModel):
-    image = fields.ForeignKeyField("models.File", related_name="team_image" null=True)
+    image = fields.ForeignKeyField("models.File", related_name="team_image", null=True)
     name = fields.CharField(255)
     position = fields.CharField(255)
     about = fields.TextField(null=True)
