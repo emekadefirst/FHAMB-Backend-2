@@ -1,33 +1,33 @@
-
-FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
+# Use uv-managed Python base image
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim AS build
 
 WORKDIR /app
 
-# Install required utilities
-RUN apt-get update && apt-get install -y \
-    netcat-traditional \
-    postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
+# Optional: install netcat for health/wait scripts
+RUN apt-get update && apt-get install -y netcat-traditional && rm -rf /var/lib/apt/lists/*
 
-# Ensure Python path points to venv
-ENV PATH="/app/.venv/bin:$PATH"
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 
+# Copy dependency files first (for caching)
 COPY pyproject.toml uv.lock README.md* ./
 
-# Install deps (aerich included)
+# Install dependencies
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-editable
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project --no-editable
 
-# Fix potential aerich permission issues
-RUN chmod +x /app/.venv/bin/aerich || true
 
-# Copy source after dependencies
+# Copy the rest of the project
 COPY . /app
+
+# Add venv to PATH
+ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8080
 
+# Run database migrations before starting app
 CMD bash -c "\
     set -e && \
     echo '⏳ Waiting for database...' && \
@@ -39,8 +39,9 @@ CMD bash -c "\
         uv run migrate; \
     else \
         echo '⚡ Fresh DB detected. Recreating migrations...' && \
-        uv run aerich init -t src.core.database.TORTOISE_ORM && \
-        uv run aerich init-db; \
+        rm -rf migrations/models && \
+        aerich init -t src.core.database.TORTOISE_ORM && \
+        aerich init-db; \
     fi && \
     echo '🚀 Seeding database...' && \
     uv run seed && \
