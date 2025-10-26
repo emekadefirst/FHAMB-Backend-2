@@ -16,6 +16,7 @@ class Branch(BaseModel):
     hq = fields.BooleanField(default=False)
     phone_numbers: list[str] = ArrayField("text", null=True)
     emails: list[str] = ArrayField("text", null=True)
+    map_link = fields.CharField(max_length=500)
 
     class Meta:
         table = "branch"

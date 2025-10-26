@@ -36,6 +36,8 @@ EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", 465))
 EMAIL_USER = str(os.getenv("EMAIL_USER"))
 EMAIL_PASSWORD = str(os.getenv("EMAIL_PASSWORD"))
+FRONTEND_URL = str(os.getenv('FRONTEND_URL'))
+
 
 CORS_ALLOWED_ORIGINS = [
     origin.strip()

@@ -1,8 +1,11 @@
+version: "3.9"
+
 services:
   app:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+    image: fhamb-be:latest
     container_name: fhamb_app
     ports:
       - "8080:8080"
@@ -13,44 +16,10 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - ../docker/entrypoint.sh:/app/entrypoint.sh
-    entrypoint: ["/bin/bash", "/app/entrypoint.sh"]
-    command: ["uv", "run", "prod"]
     restart: unless-stopped
+    networks:
+      - fhamb_net
 
-  db:
-    image: postgres:15  
-    container_name: fhamb_db
-    ports:
-      - "5432:5432"
-    env_file:
-      - ../.env.prod
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$DB_USER -d $$DB_NAME"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 10s
-
-  redis:
-    image: redis:7.2-alpine  # <-- pin to stable version
-    container_name: fhamb_redis
-    ports:
-      - "6379:6379"
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 5s
-    volumes:
-      - redis_data:/data
-
-volumes:
-  postgres_data:
-  redis_data:
+networks:
+  fhamb_net:
+    external: true

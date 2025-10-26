@@ -8,5 +8,5 @@ wheels/
 
 # Virtual environments
 .venv
-migrations/
 index.html
+docker.p.yml

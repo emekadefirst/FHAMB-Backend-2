@@ -6,6 +6,10 @@ from slugify import slugify
 from src.apps.file import File
 from src.apps.auth.user import User
 from src.apps.public.event.schemas import EventSchema, EventDateSchema
+from fastapi import BackgroundTasks
+from src.libs.smtp.mailer import EmailService
+from src.libs.smtp.templates.newsnevent import content_email
+from src.apps.public.subscribers.models import Subscriber
 
 
 
@@ -15,6 +19,8 @@ class EventService:
     error = ErrorHandler(Event)
     file = BaseObjectService(File)
     date = BaseObjectService(EventDate)
+    subscribers = Subscriber 
+    smtp = EmailService()
 
     @classmethod
     async def all(cls, added_by: str | None = None, category: str | None = None, page: int = 1, count: int = 10):
@@ -62,7 +68,7 @@ class EventService:
         }
 
     @classmethod
-    async def create(cls, user: User, dto: EventSchema):
+    async def create(cls, user: User, dto: EventSchema, task: BackgroundTasks):
         event = await cls.boa.model.create(
             **dto.dict(exclude={"image_ids"}),
             added_by=user
@@ -73,7 +79,17 @@ class EventService:
                 image = await cls.file.model.get_or_none(id=image_id)
                 if image:
                     await event.images.add(image)
-
+        images = await event.images.all()
+        image_url = images[0].url 
+        content = content_email(title=event.title, image=image_url, id=event.id, content_type="events")
+        emails = await cls.subscribers.all().values_list("email", flat=True)
+        if emails:
+            task.add_task(
+                cls.smtp.send_email,
+                subject=f"FHA EVENT: {event.title}",
+                body=content,
+                to_emails=emails
+            )
         return event
 
     

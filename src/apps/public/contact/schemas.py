@@ -15,6 +15,7 @@ class BranchSchema(BaseModel):
     hq: Optional[bool] = False
     phone_numbers: Optional[List[str]] = []
     emails: Optional[List[str]] = []
+    map_link: Optional[str] = Field(None, max_length=500)
 
 
 

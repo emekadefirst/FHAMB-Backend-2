@@ -38,6 +38,15 @@ async def list_social(request: Request):
     return await SocialService.all()
 
 
+@social_router.delete(
+    "/{id}", 
+    status_code=204,
+    dependencies=[Depends(AuthPermissionService.permission_required(action=Action.DELETE, resource=Resource.PUBLIC))]
+    )
+async def delete_social(id: str):
+    return await SocialService.delete(id=id)
+
+
 # -----------------------------
 # Branch Router
 # -----------------------------
@@ -68,6 +77,14 @@ async def get_branch(id: str, request: Request):
 async def list_branch(request: Request):
     return await BranchService.all()
 
+
+@branch_router.delete(
+    "/{id}", 
+    status_code=204,
+    dependencies=[Depends(AuthPermissionService.permission_required(action=Action.DELETE, resource=Resource.PUBLIC))]
+    )
+async def delete_branch(id: str):
+    return await BranchService.delete(id=id)
 
 # -----------------------------
 # ContactUs Router

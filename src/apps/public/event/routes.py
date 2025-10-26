@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import Depends, Query, Path, Body
+from fastapi import Depends, Query, Path, Body, BackgroundTasks
 from src.utilities.route_builder import build_router
 from src.apps.public.event.services import EventService, EventDateService
 from src.apps.public.event.schemas import EventSchema, EventDateSchema
@@ -47,11 +47,12 @@ async def get_event(slug_or_id: str):
     dependencies=[Depends(AuthPermissionService.permission_required(action=Action.CREATE, resource=Resource.PUBLIC))]
 )
 async def create_event(
-    dto: EventSchema = Body(...),
-    user: User = Depends(jwt.get_current_user),
+    dto: EventSchema,
+    task: BackgroundTasks,
+    user: User = Depends(jwt.get_current_user)
 ):
     """Create a new event."""
-    return await EventService.create(user, dto)
+    return await EventService.create(user=user, dto=dto, task=task)
 
 
 @event_router.patch(

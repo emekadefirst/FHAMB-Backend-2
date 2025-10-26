@@ -5,7 +5,11 @@ from src.enums.base import ContentStatus
 from src.apps.auth.user import User
 from slugify import slugify
 from src.apps.file import File
+from fastapi import BackgroundTasks
+from src.libs.smtp.mailer import EmailService
+from src.libs.smtp.templates.newsnevent import content_email
 from src.apps.public.blog.schemas import CategorySchema, BlogSchema
+from src.apps.public.subscribers.models import Subscriber
 
 
 
@@ -68,22 +72,37 @@ class CategoryService:
     async def delete(cls, id: str):
         return await cls.boa.delete(id=id)
  
+
+
 class BlogService:
     error = ErrorHandler(Blog)
     boa = BaseObjectService(Blog)
     file = BaseObjectService(File)
+    smtp = EmailService()
+    subscribers = Subscriber 
 
     @classmethod
-    async def create(cls, user: User, dto: BlogSchema):
+    async def create(cls, user: User, dto: BlogSchema, task: BackgroundTasks):
         blog = cls.boa.model(**dto.dict(exclude={"author"}))
         blog.author = user
-        await blog.save()  
-
+        await blog.save()
         if dto.image_ids:
             for image_id in dto.image_ids:
                 image = await cls.file.model.get_or_none(id=image_id)
                 if image:
                     await blog.images.add(image)
+
+        images = await blog.images.all()
+        image_url = images[0].url 
+        content = content_email(title=blog.title, image=image_url, id=blog.id, content_type="news")
+        emails = await cls.subscribers.all().values_list("email", flat=True)
+        if emails:
+            task.add_task(
+                cls.smtp.send_email,
+                subject=f"FHA NEWS: {blog.title}",
+                body=content,
+                to_emails=emails
+            )
         return blog
 
        

@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: fhamb_db
+    ports:
+      - "5432:5432"
+    env_file:
+      - ../.env.prod
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d publicdb"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    networks:
+      - fhamb_net
+
+volumes:
+  postgres_data:
+
+networks:
+  fhamb_net:
+    external: true

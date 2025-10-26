@@ -38,6 +38,11 @@ class SocialService:
     @classmethod
     async def all(cls, prefetch: Optional[List[str]] = None, select: Optional[List[str]] = None):
         return await cls.boa.all(prefetch_related=prefetch, select_related=select)
+    
+    @classmethod
+    async def delete(cls, id: str):
+        return await cls.boa.trash(id=id)
+
 
 
 class BranchService:
@@ -68,6 +73,12 @@ class BranchService:
     @classmethod
     async def all(cls, prefetch: Optional[List[str]] = None, select: Optional[List[str]] = None):
         return await cls.boa.all(prefetch_related=prefetch, select_related=select)
+
+
+
+    @classmethod
+    async def delete(cls, id: str):
+        return await cls.boa.trash(id=id)
 
 
 class ContactUsService:

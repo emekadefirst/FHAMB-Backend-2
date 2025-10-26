@@ -7,6 +7,7 @@ from src.apps.auth.user import User
 from src.core.cache import cache
 from src.enums.base import Action, Resource
 from uuid import UUID
+from fastapi import BackgroundTasks
 from src.dependencies.permissions.base import AuthPermissionService
 
 category_router = build_router(path="categories", tags=["Categories"])
@@ -81,8 +82,8 @@ async def get_blog(slug_or_id: str, request: Request):
     status_code=201,
     dependencies=[Depends(AuthPermissionService.permission_required(action=Action.CREATE, resource=Resource.PUBLIC))]
 )
-async def create_blog(dto: BlogSchema, user: User = Depends(jwt.get_current_user)):
-    return await BlogService.create(user=user, dto=dto)
+async def create_blog(dto: BlogSchema, task: BackgroundTasks, user: User = Depends(jwt.get_current_user)):
+    return await BlogService.create(user=user, dto=dto, task=task)
 
 
 @blogs_router.patch(
