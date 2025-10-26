@@ -40,8 +40,8 @@ CMD bash -c "\
     else \
         echo '⚡ Fresh DB detected. Recreating migrations...' && \
         rm -rf migrations/models && \
-        aerich init -t src.core.database.TORTOISE_ORM && \
-        aerich init-db; \
+        uv run aerich init -t src.core.database.TORTOISE_ORM && \
+        uv run aerich init-db; \
     fi && \
     echo '🚀 Seeding database...' && \
     uv run seed && \
