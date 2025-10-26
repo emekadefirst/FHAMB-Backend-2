@@ -10,7 +10,7 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - /root/pubserver/.env.prod 
+      - ../.env.prod
     depends_on:
       db:
         condition: service_healthy
