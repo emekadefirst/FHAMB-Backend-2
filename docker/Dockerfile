@@ -1,30 +1,33 @@
-# Use uv-managed Python base image
-FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim AS build
+
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
 WORKDIR /app
 
-# Optional: install netcat for health/wait scripts
-RUN apt-get update && apt-get install -y netcat-traditional && rm -rf /var/lib/apt/lists/*
+# Install required utilities
+RUN apt-get update && apt-get install -y \
+    netcat-traditional \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
 
+# Ensure Python path points to venv
+ENV PATH="/app/.venv/bin:$PATH"
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 
-# Copy dependency files first (for caching)
 COPY pyproject.toml uv.lock README.md* ./
 
-# Install dependencies
+# Install deps (aerich included)
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-editable
 
-# Copy the rest of the project
-COPY . /app
+# Fix potential aerich permission issues
+RUN chmod +x /app/.venv/bin/aerich || true
 
-# Add venv to PATH
-ENV PATH="/app/.venv/bin:$PATH"
+# Copy source after dependencies
+COPY . /app
 
 EXPOSE 8080
 
-# Run database migrations before starting app
 CMD bash -c "\
     set -e && \
     echo '⏳ Waiting for database...' && \

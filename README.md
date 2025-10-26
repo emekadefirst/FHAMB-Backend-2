@@ -177,7 +177,9 @@ docker compose -f docker-compose.yml up --build
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.db.yml -f docker-compose.redis.yml logs -f
 ```
-
+```
+docker network create fhamb_net
+```
 ### Individual service logs
 
 ```bash
