@@ -24,6 +24,6 @@ def init():
     asyncio.run(run_aerich_command(["init", "-t", "src.core.database.TORTOISE_ORM"]))
 
 
-def init_db():
+def mount():
     """Initialize the database (create schema tables)."""
     asyncio.run(run_aerich_command(["init-db"]))

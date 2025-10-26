@@ -211,7 +211,7 @@ docker compose -f docker/docker-compose.yml -f docker/docker-compose.db.yml -f d
 Rebuild all images (fresh, no cache):
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.db.yml -f docker-compose.redis.yml build --no-cache
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.db.yml -f docker/docker-compose.redis.yml build --no-cache
 ```
 
 ---
