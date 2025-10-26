@@ -31,6 +31,8 @@ dev = "src.scripts.server:run_server"
 prod = "src.scripts.server:run_prod"
 makemigrations = "src.scripts.aerich:makemigrations"
 migrate = "src.scripts.aerich:migrate"
+init = "src.scripts.aerich:init"
+mount = "src.scripts.aerich:mount"
 seed = "src.scripts.seed:run"
 
 [build-system]

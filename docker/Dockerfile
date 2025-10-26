@@ -40,10 +40,11 @@ CMD bash -c "\
     else \
         echo '⚡ Fresh DB detected. Recreating migrations...' && \
         rm -rf migrations/models && \
-        uv run aerich init -t src.core.database.TORTOISE_ORM && \
-        uv run aerich init-db; \
+        uv run init && \
+        uv run mount; \
     fi && \
     echo '🚀 Seeding database...' && \
     uv run seed && \
     echo '🚀 Starting app...' && \
     uv run prod"
+
