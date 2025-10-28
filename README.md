@@ -175,7 +175,7 @@ docker compose -f docker-compose.yml up --build
 ### All logs (app + db + redis)
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.db.yml -f docker-compose.redis.yml logs -f
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.db.yml -f docker/docker-compose.redis.yml logs -f
 ```
 ```
 docker network create fhamb_net
@@ -211,7 +211,7 @@ docker compose -f docker/docker-compose.yml -f docker/docker-compose.db.yml -f d
 Rebuild all images (fresh, no cache):
 
 ```bash
-docker compose  --env-file .env.prod -f docker/docker-compose.yml -f docker/docker-compose.db.yml -f docker/docker-compose.redis.yml build --no-cache
+docker compose --env-file .env.prod -f docker/docker-compose.yml -f docker/docker-compose.db.yml -f docker/docker-compose.redis.yml up --build -d
 ```
 
 ---
