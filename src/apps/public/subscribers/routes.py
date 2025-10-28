@@ -37,3 +37,12 @@ async def get_subscriber(id: str):
 )
 async def list_subscriber():
     return await SubscriberService.all()
+
+
+@subscriber_router.delete(
+    "/{id}",
+    status_code=204,
+    dependencies=[Depends(AuthPermissionService.permission_required(action=Action.DELETE, resource=Resource.PUBLIC))]
+)
+async def delete_subscriber(id: str):
+    return await SubscriberService.delete(id=id)

@@ -37,7 +37,7 @@ class CachingService:
     @classmethod
     async def open_conn(
         cls,
-        host="redis",
+        host="localhost",
         port=6379,
         db=0,
         max_connections=50,

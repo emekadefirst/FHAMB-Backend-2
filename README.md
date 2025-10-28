@@ -216,7 +216,7 @@ docker compose  --env-file .env.prod -f docker/docker-compose.yml -f docker/dock
 
 ---
 
-## 🧰 Useful Docker Commands
+## 🧰 Useful Docker Commands 
 
 ### View running containers
 

@@ -35,3 +35,7 @@ class SubscriberService:
     @classmethod
     async def all(cls):
         return await cls.boa.all()
+
+    @classmethod
+    async def delete(cls, id):
+        return await cls.boa.trash(id=id)
